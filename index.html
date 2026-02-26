@@ -73,7 +73,7 @@
       left: 0%;
       width: 100vw;
       display: flex;
-      flex-flow: row-wrap;
+      flex-flow: row wrap;
       justify-content: center;
       text-align: center;
       margin: 3rem 0;
@@ -129,10 +129,41 @@
         display: block;
       }
     }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(120, 50, 0, 0.18);
+      backdrop-filter: blur(4px);
+      font-family: sans-serif;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: rgb(255, 240, 200);
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: rgb(139, 69, 19);
+      text-decoration: underline;
+    }
   </style>
 </head>
 
 <body>
+  <nav>
+    <a href="./bells.html">bells</a>
+    <a href="https://github.com/uncooltoast">githorb</a>
+    <a href="./index.html">YOU ARE HERE</a>
+  </nav>
   <aside class="uncool-toast-container">
     <div class="toast-container">
       <svg class="toast" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 250">
