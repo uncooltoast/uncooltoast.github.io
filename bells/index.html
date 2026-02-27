@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Uncool Toast's What even is time????</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
   <style>
     * {
       margin: 0;
@@ -339,8 +340,8 @@
 
     function setupPreferred() {
       const HIGH   = '../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3';
-      const GONG   = '../assets/12s-low-gong-cc0-from-freesound.org-tec_studio-sounds-668647.mp3';
       const MEDIUM = '../assets/30s-bright-medium-tibetan-bell-cc0-from-freesound.org-fauxpress-sounds-42095.mp3';
+      const LOW   = '../assets/12s-low-gong-cc0-from-freesound.org-tec_studio-sounds-668647.mp3';
       const BOWL43 = '../assets/43s-tibetan-singing-bowl-big-strike-cc0-from-freesound.org-ryancacophony-sounds-202017.mp3';
       const ESCAL  = '../assets/60s-escalating-tibetan-singing-bowl-cc0-from-freesound.org-SamuelGremaud-sounds-518705.mp3';
 
@@ -348,7 +349,7 @@
       spawnPeriodic(HIGH,   'STRIKE: bright high bell (6s)',      60, msUntilMinute(15), 0.4, '15');
       spawnPeriodic(HIGH,   'STRIKE: bright high bell (6s)',      60, msUntilMinute(45), 0.4, '45');
       spawnPeriodic(MEDIUM, 'STRIKE: bright medium tibetan bell (30s)', 60, msUntilMinute(30), 0.4, '30');
-      spawnAlarm(GONG,  'STRIKE: low gong (12s)',                          '14:00', 0.4);
+      spawnAlarm(LOW,  'STRIKE: low gong (12s)',                          '14:00', 0.4);
       spawnAlarm(ESCAL, 'SINGING: tibetan singing bowl, escalating (60s)', '15:00', 0.4);
     }
 
