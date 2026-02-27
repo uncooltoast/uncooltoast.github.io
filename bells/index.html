@@ -90,7 +90,7 @@
       justify-content: center;
       gap: 0.8rem;
       padding: 1rem;
-      border: 1px solid rgb(139, 69, 19);
+      border-radius: 1rem;
       box-shadow:
         1rem -1rem 2rem rgb(248, 213, 138),
         -1rem 1rem 2rem rgb(248, 213, 138),
@@ -105,7 +105,8 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: flex-end;
-      gap: 0.8rem;
+      gap: 1rem;
+      padding: 0 0.5rem 0.5rem;
     }
 
     .timer-form select {
@@ -136,6 +137,12 @@
       background: rgba(139, 69, 19, 1);
     }
 
+    .lorge {
+      font-size: 1.5rem;
+      color: #fd9956;
+      background: black;
+    }
+
     .add-btns {
       display: flex;
       gap: 0.6rem;
@@ -147,10 +154,14 @@
       display: none;
       position: relative;
       width: 100%;
+      flex-flow: column nowrap;
+      gap: 1rem;
+      align-items: center;
+      border: 2px dotted rgb(139, 69, 19);
     }
 
     .creator-panel.open {
-      display: block;
+      display: flex;
     }
 
     .creator-panel-header {
@@ -161,11 +172,12 @@
       width: 100%;
       cursor: pointer;
       user-select: none;
+      padding: 0.5rem;
+      background-color: rgba(255, 240, 200, 0.5);
     }
 
     .close-panel-btn {
-      font-size: 2rem;
-      line-height: 2.5rem;
+      font-size: 1.5rem;
       color: rgb(139, 69, 19);
       background: transparent;
       border: none;
@@ -192,7 +204,7 @@
 
     .stop-btn {
       background: transparent;
-      border: 1px solid rgba(139, 69, 19, 0.35);
+      border: none;
       border-radius: 4px;
       cursor: pointer;
       padding: 0.4rem;
@@ -272,6 +284,7 @@
       background-color: rgba(255, 250, 190, 0.8);
       padding: 0.4rem;
     }
+
 
     .bell-info-card {
       display: flex;
@@ -358,7 +371,7 @@
       // uncooltoast bell ringer deets
       src: '../assets/12s-low-gong-cc0-from-freesound.org-tec_studio-sounds-668647.mp3',
       label: 'STRIKE: low gong (12s)',
-      defaultVolume: 0.4,
+      defaultVolume: 1.0,
     });
 
     const MediumBright = new Bell({
@@ -425,7 +438,7 @@
       // uncooltoast bell ringer deets
       src: '../assets/60s-escalating-tibetan-singing-bowl-cc0-from-freesound.org-SamuelGremaud-sounds-518705.mp3',
       label: 'SINGING: tibetan singing bowl, escalating (60s)',
-      defaultVolume: 0.4,
+      defaultVolume: 0.5,
     });
 
     const SingingGentle = new Bell({
@@ -445,7 +458,7 @@
       // uncooltoast bell ringer deets
       src: '../assets/57s-tibetan-singing-bowl-cc0-from-freesound.org-steffcaffrey-sounds-449950.mp3',
       label: 'SINGING: tibetan singing bowl (57s)',
-      defaultVolume: 0.6,
+      defaultVolume: 1.0,
     });
     
     const BELLS = { LowGong, MediumBright, HighBright, BoldBright, SingingEscalating, SingingGentle };
@@ -460,7 +473,7 @@
       player.load();
       player.volume = bell.defaultVolume;
       const prefix = playerId.replace('-preview-player', '');
-      setFormValue(prefix + '-volume', String(bell.defaultVolume));
+      setFormValue(prefix + '-volume', bell.defaultVolume.toFixed(1));
     }
 
     /** sets the volume of a given player */
@@ -520,7 +533,7 @@
     let spawnCounter = 0;
 
     /** creates a new periodic bell timer */
-    function spawnPeriodic(bell, minutes, delayMs, volume) {
+    function spawnPeriodic(bell, minutes, delayMs, volume = bell.defaultVolume) {
       const periodMs = minutes * 60 * 1000;
       const id = Date.now() + (spawnCounter++);
       const nextRing = Date.now() + (delayMs > 0 ? delayMs : periodMs);
@@ -555,7 +568,7 @@
     }
 
     /** creates a new timed bell alarm */
-    function spawnAlarm(bell, timeStr, volume) {
+    function spawnAlarm(bell, timeStr, volume = bell.defaultVolume) {
       const [hours, mins] = timeStr.split(':').map(Number);
       const now = new Date();
       const target = new Date(now);
@@ -590,12 +603,11 @@
 
     /** sets up uncooltoast's preferred bells */
     function setupPreferred() {
-      spawnPeriodic(BoldBright, 60, msUntilMinute(59), 0.4);
-      spawnPeriodic(HighBright, 60, msUntilMinute(15), 0.4);
-      spawnPeriodic(HighBright, 60, msUntilMinute(45), 0.4);
-      spawnPeriodic(MediumBright, 60, msUntilMinute(30), 0.4);
-      spawnAlarm(LowGong, '14:00', 0.4);
-      spawnAlarm(SingingEscalating, '15:00', 0.4);
+      spawnPeriodic(BoldBright, 60, msUntilMinute(59));
+      spawnPeriodic(HighBright, 30, msUntilMinute(15));
+      spawnPeriodic(MediumBright, 60, msUntilMinute(30));
+      spawnAlarm(LowGong, '14:00');
+      spawnAlarm(SingingEscalating, '15:00');
     }
 
     /** uses form state to inject a new periodic bell timer */
@@ -691,7 +703,7 @@
       item.innerHTML =
         `<span>${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
         `<span id="countdown-${ id }"></span>` +
-        `<button class="stop-btn" onclick="stopTimer(${ id })">destroy</button>`;
+        `<button class="stop-btn" onclick="stopTimer(${ id })">DESTROY</button>`;
       list.appendChild(item);
       updateCountdowns();
     }
@@ -732,7 +744,11 @@
       <div class="creator-panel periodic" id="panel-periodic">
         <div class="creator-panel-header" onclick="togglePanel('panel-periodic')">
           <h2>create new periodic bell timer</h2>
-          <button class="close-panel-btn" onclick="event.stopPropagation(); togglePanel('panel-periodic')" title="close create new periodic bell timer panel" aria-label="close create new periodic bell timer panel">x</button>
+          <button class="close-panel-btn" onclick="event.stopPropagation(); togglePanel('panel-periodic')" title="close create new periodic bell timer panel" aria-label="close create new periodic bell timer panel">❌</button>
+        </div>
+        <div class="timer-field">
+          <label for="timer-preview-player">preview</label>
+          <audio id="timer-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
         </div>
         <div class="timer-form">
           <div class="timer-field">
@@ -745,7 +761,6 @@
               <option value="SingingGentle">SINGING: tibetan singing bowl (57s)</option>
               <option value="SingingEscalating">SINGING: tibetan singing bowl, escalating (60s)</option>
             </select>
-            <audio id="timer-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
           </div>
           <div class="timer-field">
             <label for="timer-period">every</label>
@@ -782,13 +797,17 @@
               <option value="1.0">100%</option>
             </select>
           </div>
-          <button class="create-btn" onclick="createTimer()">create</button>
+          <button class="create-btn lorge" onclick="createTimer()">create</button>
         </div>
       </div>
       <div class="creator-panel timed" id="panel-timed">
         <div class="creator-panel-header" onclick="togglePanel('panel-timed')">
           <h2>create new timed bell (good for alarms)</h2>
-          <button class="close-panel-btn" onclick="event.stopPropagation(); togglePanel('panel-timed')" title="close create new timed bell timer panel" aria-label="close create new timed bell timer panel">x</button>
+          <button class="close-panel-btn" onclick="event.stopPropagation(); togglePanel('panel-timed')" title="close create new timed bell timer panel" aria-label="close create new timed bell timer panel">❌</button>
+        </div>
+        <div class="timer-field">
+          <label for="alarm-preview-player">preview</label>
+          <audio id="alarm-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
         </div>
         <div class="timer-form">
           <div class="timer-field">
@@ -801,7 +820,6 @@
               <option value="SingingGentle">SINGING: tibetan singing bowl (57s)</option>
               <option value="SingingEscalating">SINGING: tibetan singing bowl, escalating (60s)</option>
             </select>
-            <audio id="alarm-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
           </div>
           <div class="timer-field">
             <label for="alarm-time">ring at</label>
@@ -822,7 +840,7 @@
               <option value="1.0">100%</option>
             </select>
           </div>
-          <button class="create-btn" onclick="createAlarm()">create</button>
+          <button class="create-btn lorge" onclick="createAlarm()">create</button>
         </div>
       </div>
     </section>
