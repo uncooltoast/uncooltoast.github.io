@@ -191,6 +191,16 @@
       background: rgba(139, 69, 19, 0.12);
     }
 
+    .optional {
+      font-style: italic;
+    }
+
+    .time-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
     input[type="time"] {
       color: rgb(139, 69, 19);
       background: rgba(255, 240, 200, 0.7);
@@ -263,59 +273,53 @@
 
     setInterval(tickCountdowns, 1000);
 
-    function createTimer() {
-      const bellSelect = document.getElementById('timer-bell');
-      const periodSelect = document.getElementById('timer-period');
-      const volumeSelect = document.getElementById('timer-volume');
+    let spawnCounter = 0;
 
-      const src = bellSelect.value;
-      const label = bellSelect.options[bellSelect.selectedIndex].text;
-      const minutes = parseInt(periodSelect.value);
-      const volume = parseFloat(volumeSelect.value);
+    function spawnPeriodic(src, label, minutes, delayMs, volume, startLabel) {
       const periodMs = minutes * 60 * 1000;
+      const id = Date.now() + (spawnCounter++);
+      const nextRing = Date.now() + (delayMs > 0 ? delayMs : periodMs);
+      let handle;
 
-      const id = Date.now();
-      let nextRing = Date.now() + periodMs;
+      if (delayMs > 0) {
+        handle = setTimeout(() => {
+          const a = new Audio(src); a.volume = volume; a.play();
+          const entry = activeTimers.find(t => t.id === id);
+          if (!entry) return;
+          entry.nextRing = Date.now() + periodMs;
+          const intervalId = setInterval(() => {
+            const a2 = new Audio(src); a2.volume = volume; a2.play();
+            const e = activeTimers.find(t => t.id === id);
+            if (e) { e.nextRing = Date.now() + periodMs; e.intervalId = intervalId; }
+          }, periodMs);
+          entry.intervalId = intervalId;
+        }, delayMs);
+      } else {
+        handle = setInterval(() => {
+          const a = new Audio(src); a.volume = volume; a.play();
+          const entry = activeTimers.find(t => t.id === id);
+          if (entry) entry.nextRing = Date.now() + periodMs;
+        }, periodMs);
+      }
 
-      const intervalId = setInterval(() => {
-        const audio = new Audio(src);
-        audio.volume = volume;
-        audio.play();
-        nextRing = Date.now() + periodMs;
-        const entry = activeTimers.find(t => t.id === id);
-        if (entry) entry.nextRing = nextRing;
-      }, periodMs);
-
-      activeTimers.push({ id, intervalId, nextRing, oneShot: false });
-      renderTimer(id, label, 'every ' + minutes + ' min', Math.round(volume * 100));
+      activeTimers.push({ id, intervalId: handle, nextRing, oneShot: false });
+      const periodLabel = 'every ' + minutes + ' min' + (startLabel ? ', from :' + startLabel : '');
+      renderTimer(id, label, periodLabel, Math.round(volume * 100));
     }
 
-    function createAlarm() {
-      const bellSelect = document.getElementById('alarm-bell');
-      const timeInput = document.getElementById('alarm-time');
-      const volumeSelect = document.getElementById('alarm-volume');
-
-      const src = bellSelect.value;
-      const label = bellSelect.options[bellSelect.selectedIndex].text;
-      const volume = parseFloat(volumeSelect.value);
-      const timeVal = timeInput.value;
-
-      if (!timeVal) return;
-
-      const [hours, mins] = timeVal.split(':').map(Number);
+    function spawnAlarm(src, label, timeStr, volume) {
+      const [hours, mins] = timeStr.split(':').map(Number);
       const now = new Date();
       const target = new Date(now);
       target.setHours(hours, mins, 0, 0);
       if (target <= now) target.setDate(target.getDate() + 1);
       const delayMs = target - now;
 
-      const id = Date.now();
+      const id = Date.now() + (spawnCounter++);
       const nextRing = Date.now() + delayMs;
 
       const timeoutId = setTimeout(() => {
-        const audio = new Audio(src);
-        audio.volume = volume;
-        audio.play();
+        const audio = new Audio(src); audio.volume = volume; audio.play();
         stopTimer(id);
       }, delayMs);
 
@@ -324,12 +328,76 @@
       renderTimer(id, label, 'at ' + displayTime, Math.round(volume * 100));
     }
 
+    function msUntilMinute(targetMin) {
+      const now = new Date();
+      const t = new Date(now);
+      t.setSeconds(0, 0);
+      t.setMinutes(targetMin);
+      if (t <= now) t.setHours(t.getHours() + 1);
+      return t - now;
+    }
+
+    function setupPreferred() {
+      const HIGH   = '../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3';
+      const GONG   = '../assets/12s-low-gong-cc0-from-freesound.org-tec_studio-sounds-668647.mp3';
+      const MEDIUM = '../assets/30s-bright-medium-tibetan-bell-cc0-from-freesound.org-fauxpress-sounds-42095.mp3';
+      const BOWL43 = '../assets/43s-tibetan-singing-bowl-big-strike-cc0-from-freesound.org-ryancacophony-sounds-202017.mp3';
+      const ESCAL  = '../assets/60s-escalating-tibetan-singing-bowl-cc0-from-freesound.org-SamuelGremaud-sounds-518705.mp3';
+
+      spawnPeriodic(BOWL43, 'STRIKE: tibetan singing bowl (43s)', 60, msUntilMinute(59), 0.4, '59');
+      spawnPeriodic(HIGH,   'STRIKE: bright high bell (6s)',      60, msUntilMinute(15), 0.4, '15');
+      spawnPeriodic(HIGH,   'STRIKE: bright high bell (6s)',      60, msUntilMinute(45), 0.4, '45');
+      spawnPeriodic(MEDIUM, 'STRIKE: bright medium tibetan bell (30s)', 60, msUntilMinute(30), 0.4, '30');
+      spawnAlarm(GONG,  'STRIKE: low gong (12s)',                          '14:00', 0.4);
+      spawnAlarm(ESCAL, 'SINGING: tibetan singing bowl, escalating (60s)', '15:00', 0.4);
+    }
+
+    function createTimer() {
+      const bellSelect = document.getElementById('timer-bell');
+      const periodSelect = document.getElementById('timer-period');
+      const volumeSelect = document.getElementById('timer-volume');
+      const startAtInput = document.getElementById('timer-start-at');
+
+      const src = bellSelect.value;
+      const label = bellSelect.options[bellSelect.selectedIndex].text;
+      const minutes = parseInt(periodSelect.value);
+      const volume = parseFloat(volumeSelect.value);
+      const startVal = startAtInput.value;
+
+      let delayMs = 0;
+      let startLabel = '';
+      if (startVal) {
+        const [h, m] = startVal.split(':').map(Number);
+        const target = new Date();
+        target.setHours(h, m, 0, 0);
+        if (target <= new Date()) target.setDate(target.getDate() + 1);
+        delayMs = target - Date.now();
+        startLabel = startVal;
+      }
+
+      spawnPeriodic(src, label, minutes, delayMs, volume, startLabel);
+    }
+
+    function createAlarm() {
+      const bellSelect = document.getElementById('alarm-bell');
+      const timeInput = document.getElementById('alarm-time');
+      const volumeSelect = document.getElementById('alarm-volume');
+
+      const timeVal = timeInput.value;
+      if (!timeVal) return;
+
+      spawnAlarm(
+        bellSelect.value,
+        bellSelect.options[bellSelect.selectedIndex].text,
+        timeVal,
+        parseFloat(volumeSelect.value)
+      );
+    }
+
     function stopTimer(id) {
       const idx = activeTimers.findIndex(t => t.id === id);
       if (idx !== -1) {
-        const t = activeTimers[idx];
-        if (t.oneShot) clearTimeout(t.intervalId);
-        else clearInterval(t.intervalId);
+        clearTimeout(activeTimers[idx].intervalId);
         activeTimers.splice(idx, 1);
       }
       document.getElementById('timer-' + id)?.remove();
@@ -361,7 +429,7 @@
       item.innerHTML =
         '<span>' + label + ' &mdash; ' + periodLabel + ' &mdash; ' + volumePct + '% &mdash; </span>' +
         '<span id="countdown-' + id + '"></span>' +
-        '<button class="stop-btn" onclick="stopTimer(' + id + ')">stop</button>';
+        '<button class="stop-btn" onclick="stopTimer(' + id + ')">destroy</button>';
       list.appendChild(item);
       updateGlobalControls();
       tickCountdowns();
@@ -388,6 +456,7 @@
       <div class="add-btns">
         <button class="create-btn" onclick="openPanel('panel-periodic')">+ periodic bell</button>
         <button class="create-btn" onclick="openPanel('panel-timed')">+ timed bell</button>
+        <button class="create-btn" onclick="setupPreferred()" title="set up uncooltoast's current favorite bells">uncooltoast it</button>
       </div>
       <div class="creator-panel periodic" id="panel-periodic">
         <div class="creator-panel-header" onclick="openPanel('panel-periodic')">
@@ -419,6 +488,13 @@
               <option value="60">60 min</option>
               <option value="90">90 min</option>
             </select>
+          </div>
+          <div class="timer-field">
+            <label for="timer-start-at">start at <span class="optional">(optional)</span></label>
+            <div class="time-input-row">
+              <input type="time" id="timer-start-at">
+              <button class="stop-btn" onclick="document.getElementById('timer-start-at').value = ''">clear</button>
+            </div>
           </div>
           <div class="timer-field">
             <label for="timer-volume">volume</label>
