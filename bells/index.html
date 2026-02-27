@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uncool Toast's What even is time????</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+    }
+
+    body {
+      background-color: #ffb347;
+      background-image: linear-gradient(319deg, #ffb347 0%, #ff6801 37%, #F6C324 100%);
+      color: rgb(139, 69, 19);
+      font-family: sans-serif;
+    }
+
+    .uncool-toast-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      aspect-ratio: 480/440;
+      max-height: 100vh;
+      max-width: calc(100vh * 480/440);
+      margin: auto;
+    }
+
+    .uncool-toast-container {
+      position: relative;
+    }
+
+    .content {
+      position: fixed;
+      top: 0%;
+      left: 0%;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 3rem;
+      text-align: center;
+      padding: 3rem 1rem 1rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    h1, p {
+      font-size: 3rem;
+      line-height: 4rem;
+      text-shadow:
+        1rem -1rem 2rem rgb(248, 213, 138),
+        -1rem 1rem 2rem rgb(248, 213, 138),
+        1rem 1rem 2rem rgb(255, 250, 190),
+        -1rem -1rem 2rem rgb(255, 250, 190);
+    }
+
+    p {
+      font-size: 1.5rem;
+      line-height: 2.5rem;
+    }
+
+    .timer-form select {
+      background: rgba(255, 240, 200, 0.7);
+      border: 1px solid rgba(139, 69, 19, 0.35);
+      border-radius: 4px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+    }
+
+    .timer-creator {
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      gap: 0.8rem;
+      padding: 1rem;
+      border: 1px solid rgb(139, 69, 19);
+      box-shadow:
+        1rem -1rem 2rem rgb(248, 213, 138),
+        -1rem 1rem 2rem rgb(248, 213, 138),
+        1rem 1rem 2rem rgb(255, 250, 190),
+        -1rem -1rem 2rem rgb(255, 250, 190);
+      background-color: rgba(255, 250, 190, 0.45);
+    }
+
+    .timer-form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 0.8rem;
+    }
+
+    .timer-field {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+    }
+
+    .create-btn {
+      color: rgb(255, 240, 200);
+      background: rgba(139, 69, 19, 0.55);
+      border: none;
+      border-radius: 4px;
+      padding: 0.35rem 0.9rem;
+      cursor: pointer;
+    }
+
+    .create-btn:hover {
+      background: rgba(139, 69, 19, 0.75);
+    }
+
+    .add-btns {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .creator-panel {
+      display: none;
+      position: relative;
+      width: 100%;
+    }
+
+    .creator-panel.open {
+      display: block;
+    }
+
+    .creator-panel-header {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .close-panel-btn {
+      font-size: 2rem;
+      line-height: 2.5rem;
+      color: rgb(139, 69, 19);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .active-timers {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .timer-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: rgba(255, 240, 200, 0.45);
+      border: 1px solid rgba(139, 69, 19, 0.2);
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+    }
+
+    .stop-btn {
+      background: transparent;
+      border: 1px solid rgba(139, 69, 19, 0.35);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      cursor: pointer;
+    }
+
+    .stop-btn:hover {
+      background: rgba(139, 69, 19, 0.12);
+    }
+
+    input[type="time"] {
+      color: rgb(139, 69, 19);
+      background: rgba(255, 240, 200, 0.7);
+      border: 1px solid rgba(139, 69, 19, 0.35);
+      border-radius: 4px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(120, 50, 0, 0.18);
+      backdrop-filter: blur(4px);
+      font-weight: bold;
+    }
+
+    nav a {
+      color: rgb(255, 240, 200);
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: rgb(139, 69, 19);
+      text-decoration: underline;
+    }
+  </style>
+  <script>
+    function switchBell(src) {
+      const player = document.getElementById('preview-player');
+      player.pause();
+      player.src = src;
+      player.load();
+    }
+
+    function setPreviewVolume(value) {
+      document.getElementById('preview-player').volume = parseFloat(value);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('preview-player').volume = 0.4;
+      document.getElementById('alarm-preview-player').volume = 0.4;
+    });
+
+    const activeTimers = [];
+
+    function formatCountdown(ms) {
+      const totalSecs = Math.max(0, Math.ceil(ms / 1000));
+      const h = Math.floor(totalSecs / 3600);
+      const m = Math.floor((totalSecs % 3600) / 60);
+      const s = totalSecs % 60;
+      if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      return m + ':' + String(s).padStart(2, '0');
+    }
+
+    function tickCountdowns() {
+      const now = Date.now();
+      for (const t of activeTimers) {
+        const el = document.getElementById('countdown-' + t.id);
+        if (el) el.textContent = formatCountdown(t.nextRing - now);
+      }
+    }
+
+    setInterval(tickCountdowns, 1000);
+
+    function createTimer() {
+      const bellSelect = document.getElementById('timer-bell');
+      const periodSelect = document.getElementById('timer-period');
+      const volumeSelect = document.getElementById('timer-volume');
+
+      const src = bellSelect.value;
+      const label = bellSelect.options[bellSelect.selectedIndex].text;
+      const minutes = parseInt(periodSelect.value);
+      const volume = parseFloat(volumeSelect.value);
+      const periodMs = minutes * 60 * 1000;
+
+      const id = Date.now();
+      let nextRing = Date.now() + periodMs;
+
+      const intervalId = setInterval(() => {
+        const audio = new Audio(src);
+        audio.volume = volume;
+        audio.play();
+        nextRing = Date.now() + periodMs;
+        const entry = activeTimers.find(t => t.id === id);
+        if (entry) entry.nextRing = nextRing;
+      }, periodMs);
+
+      activeTimers.push({ id, intervalId, nextRing, oneShot: false });
+      renderTimer(id, label, 'every ' + minutes + ' min', Math.round(volume * 100));
+    }
+
+    function createAlarm() {
+      const bellSelect = document.getElementById('alarm-bell');
+      const timeInput = document.getElementById('alarm-time');
+      const volumeSelect = document.getElementById('alarm-volume');
+
+      const src = bellSelect.value;
+      const label = bellSelect.options[bellSelect.selectedIndex].text;
+      const volume = parseFloat(volumeSelect.value);
+      const timeVal = timeInput.value;
+
+      if (!timeVal) return;
+
+      const [hours, mins] = timeVal.split(':').map(Number);
+      const now = new Date();
+      const target = new Date(now);
+      target.setHours(hours, mins, 0, 0);
+      if (target <= now) target.setDate(target.getDate() + 1);
+      const delayMs = target - now;
+
+      const id = Date.now();
+      const nextRing = Date.now() + delayMs;
+
+      const timeoutId = setTimeout(() => {
+        const audio = new Audio(src);
+        audio.volume = volume;
+        audio.play();
+        stopTimer(id);
+      }, delayMs);
+
+      activeTimers.push({ id, intervalId: timeoutId, nextRing, oneShot: true });
+      const displayTime = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      renderTimer(id, label, 'at ' + displayTime, Math.round(volume * 100));
+    }
+
+    function stopTimer(id) {
+      const idx = activeTimers.findIndex(t => t.id === id);
+      if (idx !== -1) {
+        const t = activeTimers[idx];
+        if (t.oneShot) clearTimeout(t.intervalId);
+        else clearInterval(t.intervalId);
+        activeTimers.splice(idx, 1);
+      }
+      document.getElementById('timer-' + id)?.remove();
+      updateGlobalControls();
+    }
+
+    function stopAll() {
+      for (const t of [...activeTimers]) stopTimer(t.id);
+    }
+
+    function updateGlobalControls() {
+      document.getElementById('global-controls').style.display =
+        activeTimers.length > 0 ? 'flex' : 'none';
+    }
+
+    function openPanel(id) {
+      document.getElementById(id).classList.toggle('open');
+    }
+
+    function closePanel(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function renderTimer(id, label, periodLabel, volumePct) {
+      const list = document.getElementById('active-timers');
+      const item = document.createElement('div');
+      item.className = 'timer-item';
+      item.id = 'timer-' + id;
+      item.innerHTML =
+        '<span>' + label + ' &mdash; ' + periodLabel + ' &mdash; ' + volumePct + '% &mdash; </span>' +
+        '<span id="countdown-' + id + '"></span>' +
+        '<button class="stop-btn" onclick="stopTimer(' + id + ')">stop</button>';
+      list.appendChild(item);
+      updateGlobalControls();
+      tickCountdowns();
+    }
+  </script>
+</head>
+
+<body>
+  <nav>
+    <a href="./">bells (you are here)</a>
+    <a href="https://github.com/uncooltoast">githorb</a>
+    <a href="../">uncool toast</a>
+  </nav>
+  <main class="content">
+    <h1>What even is time????</h1>
+    <section>
+      <p>Here are some bells to try to help</p>
+      <div class="active-timers" id="active-timers"></div>
+    </section>
+    <section class="timer-creator">
+      <div id="global-controls">
+        <button class="stop-btn" onclick="stopAll()">DESTROY all planned bells</button>
+      </div>
+      <div class="add-btns">
+        <button class="create-btn" onclick="openPanel('panel-periodic')">+ periodic bell</button>
+        <button class="create-btn" onclick="openPanel('panel-timed')">+ timed bell</button>
+      </div>
+      <div class="creator-panel periodic" id="panel-periodic">
+        <div class="creator-panel-header" onclick="openPanel('panel-periodic')">
+          <h2>create new periodic bell timer</h2>
+          <button class="close-panel-btn" onclick="event.stopPropagation(); closePanel('panel-periodic')" title="close create new periodic bell timer panel" aria-label="close create new periodic bell timer panel">x</button>
+        </div>
+        <div class="timer-form">
+          <div class="timer-field">
+            <label for="timer-bell">bell</label>
+            <select id="timer-bell" onchange="switchBell(this.value)">
+              <option value="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3">STRIKE: bright high bell (6s)</option>
+              <option value="../assets/12s-low-gong-cc0-from-freesound.org-tec_studio-sounds-668647.mp3">STRIKE: low gong (12s)</option>
+              <option value="../assets/30s-bright-medium-tibetan-bell-cc0-from-freesound.org-fauxpress-sounds-42095.mp3">STRIKE: bright medium tibetan bell (30s)</option>
+              <option value="../assets/43s-tibetan-singing-bowl-big-strike-cc0-from-freesound.org-ryancacophony-sounds-202017.mp3">STRIKE: tibetan singing bowl (43s)</option>
+              <option value="../assets/57s-tibetan-singing-bowl-cc0-from-freesound.org-steffcaffrey-sounds-449950.mp3">SINGING: tibetan singing bowl (57s)</option>
+              <option value="../assets/60s-escalating-tibetan-singing-bowl-cc0-from-freesound.org-SamuelGremaud-sounds-518705.mp3">SINGING: tibetan singing bowl, escalating (60s)</option>
+            </select>
+            <audio id="preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
+          </div>
+          <div class="timer-field">
+            <label for="timer-period">every</label>
+            <select id="timer-period">
+              <option value="5">5 min</option>
+              <option value="10">10 min</option>
+              <option value="15">15 min</option>
+              <option value="20">20 min</option>
+              <option value="30" selected>30 min</option>
+              <option value="45">45 min</option>
+              <option value="60">60 min</option>
+              <option value="90">90 min</option>
+            </select>
+          </div>
+          <div class="timer-field">
+            <label for="timer-volume">volume</label>
+            <select id="timer-volume" onchange="setPreviewVolume(this.value)">
+              <option value="0.1">10%</option>
+              <option value="0.2">20%</option>
+              <option value="0.3">30%</option>
+              <option value="0.4" selected>40%</option>
+              <option value="0.5">50%</option>
+              <option value="0.6">60%</option>
+              <option value="0.7">70%</option>
+              <option value="0.8">80%</option>
+              <option value="0.9">90%</option>
+              <option value="1.0">100%</option>
+            </select>
+          </div>
+          <button class="create-btn" onclick="createTimer()">create</button>
+        </div>
+      </div>
+      <div class="creator-panel timed" id="panel-timed">
+        <div class="creator-panel-header" onclick="openPanel('panel-timed')">
+          <h2>create new timed bell (good for alarms)</h2>
+          <button class="close-panel-btn" onclick="event.stopPropagation(); closePanel('panel-timed')" title="close create new timed bell timer panel" aria-label="close create new timed bell timer panel">x</button>
+        </div>
+        <div class="timer-form">
+          <div class="timer-field">
+            <label for="alarm-bell">bell</label>
+            <select id="alarm-bell" onchange="document.getElementById('alarm-preview-player').src = this.value; document.getElementById('alarm-preview-player').load();">
+              <option value="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3">STRIKE: bright high bell (6s)</option>
+              <option value="../assets/12s-low-gong-cc0-from-freesound.org-tec_studio-sounds-668647.mp3">STRIKE: low gong (12s)</option>
+              <option value="../assets/30s-bright-medium-tibetan-bell-cc0-from-freesound.org-fauxpress-sounds-42095.mp3">STRIKE: bright medium tibetan bell (30s)</option>
+              <option value="../assets/43s-tibetan-singing-bowl-big-strike-cc0-from-freesound.org-ryancacophony-sounds-202017.mp3">STRIKE: tibetan singing bowl (43s)</option>
+              <option value="../assets/57s-tibetan-singing-bowl-cc0-from-freesound.org-steffcaffrey-sounds-449950.mp3">SINGING: tibetan singing bowl (57s)</option>
+              <option value="../assets/60s-escalating-tibetan-singing-bowl-cc0-from-freesound.org-SamuelGremaud-sounds-518705.mp3">SINGING: tibetan singing bowl, escalating (60s)</option>
+            </select>
+            <audio id="alarm-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
+          </div>
+          <div class="timer-field">
+            <label for="alarm-time">ring at</label>
+            <input type="time" id="alarm-time">
+          </div>
+          <div class="timer-field">
+            <label for="alarm-volume">volume</label>
+            <select id="alarm-volume" onchange="document.getElementById('alarm-preview-player').volume = parseFloat(this.value);">
+              <option value="0.1">10%</option>
+              <option value="0.2">20%</option>
+              <option value="0.3">30%</option>
+              <option value="0.4" selected>40%</option>
+              <option value="0.5">50%</option>
+              <option value="0.6">60%</option>
+              <option value="0.7">70%</option>
+              <option value="0.8">80%</option>
+              <option value="0.9">90%</option>
+              <option value="1.0">100%</option>
+            </select>
+          </div>
+          <button class="create-btn" onclick="createAlarm()">create</button>
+        </div>
+      </div>
+    </section>
+    <!--
+      CC0 1.0 Universal https://archive.org/details/LovelyMeditationBell
+      - needs some trimming
+
+      CC0 1.0 Universal https://archive.org/details/CzechChurchBells
+      - lovely escalating 1:25min file with church bells -- could be good for important alarm
+    -->
+  </main>
+</body>
+
+</html>
