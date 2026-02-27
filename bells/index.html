@@ -61,8 +61,6 @@
     }
 
     h1, p {
-      font-size: 3rem;
-      line-height: 4rem;
       text-shadow:
         1rem -1rem 2rem rgb(248, 213, 138),
         -1rem 1rem 2rem rgb(248, 213, 138),
@@ -70,9 +68,20 @@
         -1rem -1rem 2rem rgb(255, 250, 190);
     }
 
+    h1 {
+      font-size: 3rem;
+      line-height: 4rem;
+    }
+
     p {
       font-size: 1.5rem;
       line-height: 2.5rem;
+    }
+
+    #global-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
     }
 
     .timer-creator {
@@ -187,10 +196,18 @@
       border-radius: 4px;
       cursor: pointer;
       padding: 0.4rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
     }
 
     .stop-btn:hover {
       background: rgba(139, 69, 19, 0.12);
+    }
+
+    .icon {
+      font-size: 1.5rem;
     }
 
     .optional {
@@ -237,6 +254,46 @@
       text-decoration: underline;
     }
 
+    .bell-info-carousel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bell-info-carousel[hidden] {
+      display: none;
+    }
+
+    .bell-info-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 0.8rem;
+      background-color: rgba(255, 250, 190, 0.8);
+      padding: 0.4rem;
+    }
+
+    .bell-info-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      padding: 1rem;
+      background: rgba(255, 240, 200, 0.5);
+      text-align: center;
+      text-wrap: balance;
+      text-wrap: pretty;
+    }
+
+    .bell-info-card a {
+      color: rgb(139, 69, 19);
+    }
+
+    .bell-info-card p {
+      font-size: 1rem;
+      line-height: 1.5rem;
+      text-shadow: none;
+    }
+
     @media (max-width: 500px) {
       h1 {
         font-size: 2rem;
@@ -262,10 +319,12 @@
     // #region bell shenanigans
     /** simple class to represent a bell */
     class Bell {
-      constructor({ src, label, defaultVolume, authorDescription, originalSource, license, licenseUrl }) {
+      constructor({ src, label, defaultVolume, author, authorName, authorDescription, originalSource, license, licenseUrl }) {
         this.src = src;
         this.label = label;
         this.defaultVolume = defaultVolume;
+        this.author = author;
+        this.authorName = authorName;
         this.authorDescription = authorDescription;
         this.originalSource = originalSource;
         this.license = license;
@@ -291,6 +350,7 @@
       authorDescription: [
         'Sound of a 1200 lbs. Japanese Temple Bell. Cast in 1532 and made of bronze. Recording from 2023 New Years Public bell ringing ceremony. San Francisco. medium receding tone. Mono'
       ],
+      authorName: 'temple_bell_002.wav',
       license: 'CC0',
       licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
       originalSource: 'https://freesound.org/people/tec_studio/sounds/668647/',
@@ -305,6 +365,7 @@
       // sauce deets
       author: 'fauxpress',
       authorDescription: ['Single stroke of small meditation bell with resonance following.'],
+      authorName: 'Bell Meditation.mp3',
       originalSource: 'https://freesound.org/people/fauxpress/sounds/42095/',
       license: 'CC0',
       licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
@@ -321,6 +382,7 @@
       authorDescription: [
         'A nice crisp sound, rather high-pitched. Not too loud, not too harsh, in a small mp3 file.'
       ],
+      authorName: 'Bell-A.mp3',
       license: 'CC0',
       licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
       originalSource: 'https://freesound.org/people/edgepixel/sounds/451229/',
@@ -336,6 +398,7 @@
       author: 'ryancacophony',
       authorDescription: ['hitting my singing bowl'],
       originalSource: 'https://freesound.org/people/ryancacophony/sounds/202017/',
+      authorName: 'singing bell hit 2.wav',
       license: 'CC0',
       licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
 
@@ -354,6 +417,7 @@
         'My sounds are licensed under the Creative Commons 0 License but it would be a pleasure for me to hear your work so doesn’t hesitate to comment or to send me a message with your work :)',
         'Passionné de musique, je pratique le field recording et la captation de sons pour occuper mon temps libre. J\'espère que mes sons vous plairont et qu\'ils vous seront utiles !',
       ],
+      authorName: 'TIBETAN BOWL - 1',
       license: 'CC0',
       licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
       originalSource: 'https://freesound.org/people/SamuelGremaud/sounds/518705/',
@@ -376,6 +440,7 @@
       originalSource: 'https://freesound.org/people/steffcaffrey/sounds/449950/',
       license: 'CC0',
       licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+      authorName: 'Singing Bowl singing',
 
       // uncooltoast bell ringer deets
       src: '../assets/57s-tibetan-singing-bowl-cc0-from-freesound.org-steffcaffrey-sounds-449950.mp3',
@@ -585,6 +650,38 @@
       document.getElementById(id).classList.toggle('open');
     }
 
+    let bellInfoIndex = 0;
+
+    function toggleBellInfo() {
+      const carousel = document.getElementById('bell-info-carousel');
+      if (carousel.hidden) {
+        renderBellInfo();
+        carousel.hidden = false;
+      } else {
+        carousel.hidden = true;
+      }
+    }
+
+    function renderBellInfo() {
+      const bellKeys = Object.keys(BELLS);
+      const bell = BELLS[bellKeys[bellInfoIndex]];
+      const descriptions = Array.isArray(bell.authorDescription)
+        ? bell.authorDescription : [bell.authorDescription];
+
+      document.getElementById('bell-info-label').textContent =
+        `${ bellInfoIndex + 1 } / ${ bellKeys.length }`;
+      document.getElementById('bell-info-card').innerHTML =
+      `<p><i>"${ bell.authorName }"</i> -- <strong>created by <a href="${ bell.originalSource }" target="_blank" rel="noopener">${ bell.author }</a></strong>, license: <a href="${ bell.licenseUrl }" target="_blank" rel="noopener">${ bell.license }</a></p>` +
+      descriptions.map(d => `<p>${ d }</p>`).join('') +
+      `<p>Uncool Toast calls it: <strong>${ bell.label }</strong></p>`;
+    }
+
+    function bellInfoNav(dir) {
+      const bellKeys = Object.keys(BELLS);
+      bellInfoIndex = (bellInfoIndex + dir + bellKeys.length) % bellKeys.length;
+      renderBellInfo();
+    }
+
     /** adds a new bell timer to the DOM */
     function spawnTimer(id, label, periodLabel, volumePct) {
       const list = document.getElementById('active-timers');
@@ -608,11 +705,23 @@
       <p>Here are some bells to try to help</p>
       <div class="active-timers" id="active-timers"></div>
     </section>
+    <div class="bell-info-carousel" id="bell-info-carousel" hidden>
+      <div class="bell-info-nav">
+        <button class="stop-btn" onclick="bellInfoNav(-1)">&#8592;</button>
+        <span id="bell-info-label"></span>
+        <button class="stop-btn" onclick="bellInfoNav(1)">&#8594;</button>
+      </div>
+      <div class="bell-info-card" id="bell-info-card"></div>
+    </div>
     <section class="timer-creator">
       <div id="global-controls">
         <button class="stop-btn" onclick="stopAll()">
           <span class="icon">🚮</span>
-          <span>DESTROY all planned bells</span>
+          <span>DESTROY all bells</span>
+        </button>
+        <button class="stop-btn" onclick="toggleBellInfo()">
+          <span class="icon">ℹ️</span>
+          <span>toggle bell info</span>
         </button>
       </div>
       <div class="add-btns">
