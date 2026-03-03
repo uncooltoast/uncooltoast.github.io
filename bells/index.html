@@ -27,39 +27,6 @@
       font-family: sans-serif;
     }
 
-    .uncool-toast-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      aspect-ratio: 480/440;
-      max-height: 100vh;
-      max-width: calc(100vh * 480/440);
-      margin: auto;
-    }
-
-    .uncool-toast-container {
-      position: relative;
-    }
-
-    .content {
-      position: fixed;
-      top: 0%;
-      left: 0%;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-flow: column nowrap;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 3rem;
-      text-align: center;
-      padding: 3rem 1rem 1rem;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-
     h1, p {
       text-shadow:
         1rem -1rem 2rem rgb(248, 213, 138),
@@ -78,11 +45,29 @@
       line-height: 2.5rem;
     }
 
+    .content {
+      position: fixed;
+      top: 0%;
+      left: 0%;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 3rem;
+      text-align: center;
+      padding: 3rem 1rem 1rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+  
     #global-controls {
       display: flex;
       justify-content: center;
       gap: 0.8rem;
     }
+
 
     .timer-creator {
       display: flex;
@@ -122,6 +107,10 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 0.2rem;
+    }
+
+    .preview.timer-field {
+      padding: 0 0.5rem 0.5rem;
     }
 
     .create-btn {
@@ -166,7 +155,7 @@
 
     .creator-panel-header {
       display: flex;
-      flex-flow: row wrap;
+      flex-flow: row nowrap;
       justify-content: space-between;
       align-items: center;
       width: 100%;
@@ -212,6 +201,7 @@
       justify-content: center;
       align-items: center;
       gap: 0.4rem;
+      flex-grow: 1;
     }
 
     .stop-btn:hover {
@@ -256,12 +246,20 @@
       font-weight: bold;
     }
 
-    nav a {
+    #menu-trigger {
+      display: none;
+      background: transparent;
+      border: none;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    nav a, #menu-trigger {
       color: rgb(255, 240, 200);
       text-decoration: none;
     }
 
-    nav a:hover {
+    nav a:hover, #menu-trigger:hover {
       color: rgb(139, 69, 19);
       text-decoration: underline;
     }
@@ -284,7 +282,6 @@
       background-color: rgba(255, 250, 190, 0.8);
       padding: 0.4rem;
     }
-
 
     .bell-info-card {
       display: flex;
@@ -318,13 +315,34 @@
         line-height: 1.8rem;
       }
 
-      .timer-creator {
-        margin-bottom: 10rem;
+      .timer-creator, .timer-form, .timer-field, select, audio {
+        width: 100%;
+      }
+
+      #global-controls, .add-btns {
+        flex-flow: column nowrap;
+        width: 100%;
+
+        > button {
+          width: 100%;
+        }
       }
 
       nav {
         flex-flow: column nowrap;
         gap: 0.6rem;
+
+        > a {
+          display: none;
+        }
+
+        &.open > a {
+          display: inline-block;
+        }
+
+        #menu-trigger {
+          display: inline-block;
+        }
       }
     }
   </style>
@@ -460,14 +478,81 @@
       label: 'SINGING: tibetan singing bowl (57s)',
       defaultVolume: 1.0,
     });
-    
-    const BELLS = { LowGong, MediumBright, HighBright, BoldBright, SingingEscalating, SingingGentle };
+
+    const ChurchEscalating = new Bell({
+      // sauce deets
+      author: 'A Clock in the Kingdom',
+      authorDescription: [
+        'Recorded at a cemetery in the Czech Republic, 2007. Hope this helps you with your audio production.'
+      ],
+      authorName: 'CzechChurchBells',
+      originalSource: 'https://archive.org/details/CzechChurchBells',
+      license: 'CC0',
+      licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+
+      // uncooltoast bell ringer deets
+      src: '../assets/85s-escalating-church-bells-cc0-from-archive.org-details-CzechChurchBells.mp3',
+      label: 'CHURCH: czech church bells, escalating (85s)',
+      defaultVolume: 1.0,
+    });
+
+    const SoftWooden = new Bell({
+      // sauce deets
+      author: 'Soup_UnderScore',
+      authorDescription: [
+        "This is a recording of a wooden wind chime, swaying and clinking gently in the embrace of the wind. Each wooden piece strikes another, producing a hollow and resonant sound that radiates a sense of peace and nature's rhythm. The audible whisper of the wind complements the chimes, enhancing the overall ambiance. Recorded with the Zoom H6 Z6-19 recorder in stereo format, this sound offers a delicate blend of nature and craftsmanship, ideal for relaxation, meditation sequences, or any setting that requires a touch of natural tranquility.",
+      ],
+      authorName: 'Wooden Wind Chime in Breeze SFX',
+      originalSource: 'https://freesound.org/people/Soup_UnderScore/sounds/708025/',
+      license: 'CC0',
+      licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+
+      // uncooltoast bell ringer deets
+      src: '../assets/5s-wooden-wind-chimes-cc0-from-freesound.org-Soup_UnderScore-sounds-708025.mp3',
+      label: 'SOFT: wooden wind chimes (5s)',
+      defaultVolume: 1.0,
+    });
+
+    const BrightMetal = new Bell({
+      // sauce deets
+      author: 'giddster',
+      authorDescription: [
+        'Wind chimes being obnoxiously loud. Could be used as a "the storm is coming" indication in the background sound setting of your choice. Recorded in isolation indoors as the wind would\'ve killed the recording.',
+        'Recorded with a Zoom H1.',
+      ],
+      authorName: 'Wind chimes 2 (loud)',
+      originalSource: 'https://freesound.org/people/giddster/sounds/437336/',
+      license: 'CC0',
+      licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+
+      // uncooltoast bell ringer deets
+      src: '../assets/31s-bright-metal-wind-chimes-cc0-from-freesound.org-giddster-sounds-437336.mp3',
+      label: 'BRIGHT: metal wind chimes (31s)',
+      defaultVolume: 0.3,
+    });
+  
+    const BELLS = {
+      LowGong,
+      MediumBright,
+      HighBright,
+      BoldBright,
+      SingingGentle,
+      SingingEscalating,
+      ChurchEscalating,
+      SoftWooden,
+      BrightMetal,
+    };
     // #endregion bell shenanigans
+
+    /** grab an element from the DOM */
+    function accessDom(id) {
+      return document.getElementById(id);
+    }
 
     /** switches the bell for a given player */
     function switchBell(playerId, whichBell) {
       const bell = BELLS[whichBell];
-      const player = document.getElementById(playerId);
+      const player = accessDom(playerId);
       player.pause();
       player.src = bell.src;
       player.load();
@@ -478,12 +563,12 @@
 
     /** sets the volume of a given player */
     function setPreviewVolume(id, value) {
-      document.getElementById(id).volume = parseFloat(value);
+      accessDom(id).volume = parseFloat(value);
     }
 
     /** sets the value of a given form element */
     function setFormValue(id, value) {
-      document.getElementById(id).value = value;
+      accessDom(id).value = value;
     }
 
     /** clears all form state, mostly necessary to avoid weird state issues on page reload */
@@ -523,7 +608,7 @@
     function updateCountdowns() {
       const now = Date.now();
       for (const timer of activeTimers) {
-        const element = document.getElementById('countdown-' + timer.id);
+        const element = accessDom('countdown-' + timer.id);
         if (element) element.textContent = formatCountdown(timer.nextRing - now);
       }
     }
@@ -601,10 +686,19 @@
       return almostNow - now;
     }
 
+    /** simple util fn to grab the closer of two time options */
+    function getClosestTime(one, two) {
+      const first = msUntilMinute(one);
+      const second = msUntilMinute(two);
+
+      return Math.min(first, second);
+    }
+
     /** sets up uncooltoast's preferred bells */
     function setupPreferred() {
+      // TODO: support localstorage and fall back to this if no local options found
+      spawnPeriodic(HighBright, 30, getClosestTime(15, 45));
       spawnPeriodic(BoldBright, 60, msUntilMinute(59));
-      spawnPeriodic(HighBright, 30, msUntilMinute(15));
       spawnPeriodic(MediumBright, 60, msUntilMinute(30));
       spawnAlarm(LowGong, '14:00');
       spawnAlarm(SingingEscalating, '15:00');
@@ -612,10 +706,10 @@
 
     /** uses form state to inject a new periodic bell timer */
     function createTimer() {
-      const bell = BELLS[document.getElementById('timer-bell').value];
-      const minutes = parseInt(document.getElementById('timer-period').value);
-      const volume = parseFloat(document.getElementById('timer-volume').value);
-      const startValue = document.getElementById('timer-start-at').value;
+      const bell = BELLS[accessDom('timer-bell').value];
+      const minutes = parseInt(accessDom('timer-period').value);
+      const volume = parseFloat(accessDom('timer-volume').value);
+      const startValue = accessDom('timer-start-at').value;
 
       let delayMs = 0;
       if (startValue) {
@@ -631,13 +725,13 @@
 
     /** uses form state to inject a new timed bell alarm */
     function createAlarm() {
-      const timeValue = document.getElementById('alarm-time').value;
+      const timeValue = accessDom('alarm-time').value;
       if (!timeValue) return;
 
       spawnAlarm(
-        BELLS[document.getElementById('alarm-bell').value],
+        BELLS[accessDom('alarm-bell').value],
         timeValue,
-        parseFloat(document.getElementById('alarm-volume').value)
+        parseFloat(accessDom('alarm-volume').value)
       );
     }
 
@@ -648,7 +742,7 @@
         clearTimeout(activeTimers[timerIndex].intervalId);
         activeTimers.splice(timerIndex, 1);
       }
-      document.getElementById('timer-' + id)?.remove();
+      accessDom('timer-' + id)?.remove();
     }
 
     /** cancels and removes all timers from the DOM */
@@ -659,13 +753,14 @@
 
     /** toggles the open state of a panel (opens/closes it) */
     function togglePanel(id) {
-      document.getElementById(id).classList.toggle('open');
+      accessDom(id).classList.toggle('open');
     }
 
     let bellInfoIndex = 0;
 
+    /** shows/hides the bell info pane */
     function toggleBellInfo() {
-      const carousel = document.getElementById('bell-info-carousel');
+      const carousel = accessDom('bell-info-carousel');
       if (carousel.hidden) {
         renderBellInfo();
         carousel.hidden = false;
@@ -674,29 +769,31 @@
       }
     }
 
+    /** updates selected view in the bell info pane */
     function renderBellInfo() {
       const bellKeys = Object.keys(BELLS);
       const bell = BELLS[bellKeys[bellInfoIndex]];
       const descriptions = Array.isArray(bell.authorDescription)
         ? bell.authorDescription : [bell.authorDescription];
 
-      document.getElementById('bell-info-label').textContent =
+      accessDom('bell-info-label').textContent =
         `${ bellInfoIndex + 1 } / ${ bellKeys.length }`;
-      document.getElementById('bell-info-card').innerHTML =
+      accessDom('bell-info-card').innerHTML =
       `<p><i>"${ bell.authorName }"</i> -- <strong>created by <a href="${ bell.originalSource }" target="_blank" rel="noopener">${ bell.author }</a></strong>, license: <a href="${ bell.licenseUrl }" target="_blank" rel="noopener">${ bell.license }</a></p>` +
       descriptions.map(d => `<p>${ d }</p>`).join('') +
       `<p>Uncool Toast calls it: <strong>${ bell.label }</strong></p>`;
     }
 
+    /** handle click on bell info pane nav */
     function bellInfoNav(dir) {
       const bellKeys = Object.keys(BELLS);
       bellInfoIndex = (bellInfoIndex + dir + bellKeys.length) % bellKeys.length;
       renderBellInfo();
     }
 
-    /** adds a new bell timer to the DOM */
+    /** adds a new bell timer to the accessDom */
     function spawnTimer(id, label, periodLabel, volumePct) {
-      const list = document.getElementById('active-timers');
+      const list = accessDom('active-timers');
       const item = document.createElement('div');
       item.className = 'timer-item';
       item.id = 'timer-' + id;
@@ -715,149 +812,208 @@
     <h1>What even is time????</h1>
     <section>
       <p>Here are some bells to try to help</p>
-      <div class="active-timers" id="active-timers"></div>
+      <div class="active-timers" id="active-timers" aria-role="timer"></div>
     </section>
-    <div class="bell-info-carousel" id="bell-info-carousel" hidden>
-      <div class="bell-info-nav">
-        <button class="stop-btn" onclick="bellInfoNav(-1)">&#8592;</button>
-        <span id="bell-info-label"></span>
-        <button class="stop-btn" onclick="bellInfoNav(1)">&#8594;</button>
+    <div id="bell-info-aria" aria-role="live-polite">
+      <div class="bell-info-carousel" id="bell-info-carousel" hidden>
+        <div class="bell-info-nav">
+          <button class="stop-btn" onclick="bellInfoNav(-1)" aria-controls="bell-info-aria">&#8592;</button>
+          <span id="bell-info-label"></span>
+          <button class="stop-btn" onclick="bellInfoNav(1)" aria-controls="bell-info-aria">&#8594;</button>
+        </div>
+        <div class="bell-info-card" id="bell-info-card"></div>
       </div>
-      <div class="bell-info-card" id="bell-info-card"></div>
     </div>
     <section class="timer-creator">
       <div id="global-controls">
-        <button class="stop-btn" onclick="stopAll()">
+        <button class="stop-btn" onclick="stopAll()" aria-controls="active-timers">
           <span class="icon">🚮</span>
           <span>DESTROY all bells</span>
         </button>
-        <button class="stop-btn" onclick="toggleBellInfo()">
+        <button class="stop-btn" onclick="toggleBellInfo()" aria-controls="bell-info-aria">
           <span class="icon">ℹ️</span>
           <span>toggle bell info</span>
         </button>
       </div>
       <div class="add-btns">
-        <button class="create-btn" onclick="togglePanel('panel-periodic')">add periodic bell</button>
-        <button class="create-btn" onclick="togglePanel('panel-timed')">add timed bell</button>
-        <button class="create-btn" onclick="setupPreferred()" title="set up uncooltoast's current favorite bells">uncooltoast it</button>
+        <button
+          class="create-btn"
+          onclick="togglePanel('panel-periodic')"
+          aria-controls="panel-periodic-aria"
+        >add periodic bell</button>
+        <button
+          class="create-btn"
+          onclick="togglePanel('panel-timed')"
+          aria-controls="panel-timed-aria"
+        >add timed bell</button>
+        <button
+          class="create-btn"
+          onclick="setupPreferred()"
+          title="set up uncooltoast's current favorite bells"
+          aria-controls="active-timers"
+        >uncooltoast it</button>
       </div>
-      <div class="creator-panel periodic" id="panel-periodic">
-        <div class="creator-panel-header" onclick="togglePanel('panel-periodic')">
-          <h2>create new periodic bell timer</h2>
-          <button class="close-panel-btn" onclick="event.stopPropagation(); togglePanel('panel-periodic')" title="close create new periodic bell timer panel" aria-label="close create new periodic bell timer panel">❌</button>
-        </div>
-        <div class="timer-field">
-          <label for="timer-preview-player">preview</label>
-          <audio id="timer-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
-        </div>
-        <div class="timer-form">
-          <div class="timer-field">
-            <label for="timer-bell">bell</label>
-            <select id="timer-bell" onchange="switchBell('timer-preview-player', this.value)">
-              <option value="HighBright">STRIKE: bright high bell (6s)</option>
-              <option value="LowGong">STRIKE: low gong (12s)</option>
-              <option value="MediumBright">STRIKE: bright medium tibetan bell (30s)</option>
-              <option value="BoldBright">STRIKE: bold strike of tibetan singing bowl (43s)</option>
-              <option value="SingingGentle">SINGING: tibetan singing bowl (57s)</option>
-              <option value="SingingEscalating">SINGING: tibetan singing bowl, escalating (60s)</option>
-            </select>
+      <div id="panel-periodic-aria" aria-live="polite">
+        <div class="creator-panel periodic" id="panel-periodic">
+          <div class="creator-panel-header" onclick="togglePanel('panel-periodic')">
+            <h2>create new periodic bell timer</h2>
+            <button
+              class="close-panel-btn"
+              onclick="event.stopPropagation(); togglePanel('panel-periodic')"
+              title="close create new periodic bell timer panel"
+              aria-label="close create new periodic bell timer panel"
+              aria-controls="panel-periodic-aria"
+            >❌</button>
           </div>
-          <div class="timer-field">
-            <label for="timer-period">every</label>
-            <select id="timer-period">
-              <option value="5">5 min</option>
-              <option value="10">10 min</option>
-              <option value="15">15 min</option>
-              <option value="20">20 min</option>
-              <option value="30" selected>30 min</option>
-              <option value="45">45 min</option>
-              <option value="60">60 min</option>
-              <option value="90">90 min</option>
-            </select>
+          <div class="timer-field preview" aria-role="live-polite">
+            <label for="timer-preview-player">preview</label>
+            <audio
+              id="timer-preview-player"
+              controls
+              src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"
+            ></audio>
           </div>
-          <div class="timer-field">
-            <label for="timer-start-at">start at <span class="optional">(optional)</span></label>
-            <div class="time-input-row">
-              <input type="time" id="timer-start-at">
-              <button class="stop-btn" onclick="setFormValue('timer-start-at', '')">clear</button>
+          <div class="timer-form">
+            <div class="timer-field">
+              <label for="timer-bell">bell</label>
+              <select
+                id="timer-bell"
+                onchange="switchBell('timer-preview-player', this.value)"
+                aria-controls="timer-preview-player"
+              >
+                <option value="SoftWooden">SOFT: wooden wind chimes (5s)</option>
+                <option value="HighBright">STRIKE: bright high bell (6s)</option>
+                <option value="LowGong">STRIKE: low gong (12s)</option>
+                <option value="MediumBright">STRIKE: bright medium tibetan bell (30s)</option>
+                <option value="BrightMetal">BRIGHT: metal wind chimes (31s)</option>
+                <option value="BoldBright">STRIKE: bold strike of tibetan singing bowl (43s)</option>
+                <option value="SingingGentle">SINGING: tibetan singing bowl (57s)</option>
+                <option value="SingingEscalating">SINGING: tibetan singing bowl, escalating (60s)</option>
+                <option value="ChurchEscalating">CHURCH: czech church bells, escalating (85s)</option>
+              </select>
             </div>
+            <div class="timer-field">
+              <label for="timer-period">every</label>
+              <select id="timer-period">
+                <option value="5">5 min</option>
+                <option value="10">10 min</option>
+                <option value="15">15 min</option>
+                <option value="20">20 min</option>
+                <option value="30" selected>30 min</option>
+                <option value="45">45 min</option>
+                <option value="60">60 min</option>
+                <option value="90">90 min</option>
+              </select>
+            </div>
+            <div class="timer-field">
+              <label for="timer-start-at">start at <span class="optional">(optional)</span></label>
+              <div class="time-input-row">
+                <input type="time" id="timer-start-at">
+                <button class="stop-btn" onclick="setFormValue('timer-start-at', '')">clear</button>
+              </div>
+            </div>
+            <div class="timer-field">
+              <label for="timer-volume">volume</label>
+              <select id="timer-volume" onchange="setPreviewVolume('timer-preview-player', this.value)">
+                <option value="0.1">10%</option>
+                <option value="0.2">20%</option>
+                <option value="0.3">30%</option>
+                <option value="0.4" selected>40%</option>
+                <option value="0.5">50%</option>
+                <option value="0.6">60%</option>
+                <option value="0.7">70%</option>
+                <option value="0.8">80%</option>
+                <option value="0.9">90%</option>
+                <option value="1.0">100%</option>
+              </select>
+            </div>
+            <button
+              class="create-btn lorge"
+              onclick="createTimer()"
+              aria-controls="active-timers"
+            >create</button>
           </div>
-          <div class="timer-field">
-            <label for="timer-volume">volume</label>
-            <select id="timer-volume" onchange="setFormValue('timer-volume', this.value)">
-              <option value="0.1">10%</option>
-              <option value="0.2">20%</option>
-              <option value="0.3">30%</option>
-              <option value="0.4" selected>40%</option>
-              <option value="0.5">50%</option>
-              <option value="0.6">60%</option>
-              <option value="0.7">70%</option>
-              <option value="0.8">80%</option>
-              <option value="0.9">90%</option>
-              <option value="1.0">100%</option>
-            </select>
-          </div>
-          <button class="create-btn lorge" onclick="createTimer()">create</button>
         </div>
       </div>
-      <div class="creator-panel timed" id="panel-timed">
-        <div class="creator-panel-header" onclick="togglePanel('panel-timed')">
-          <h2>create new timed bell (good for alarms)</h2>
-          <button class="close-panel-btn" onclick="event.stopPropagation(); togglePanel('panel-timed')" title="close create new timed bell timer panel" aria-label="close create new timed bell timer panel">❌</button>
-        </div>
-        <div class="timer-field">
-          <label for="alarm-preview-player">preview</label>
-          <audio id="alarm-preview-player" controls src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"></audio>
-        </div>
-        <div class="timer-form">
-          <div class="timer-field">
-            <label for="alarm-bell">bell</label>
-            <select id="alarm-bell" onchange="switchBell('alarm-preview-player', this.value)">
-              <option value="HighBright">STRIKE: bright high bell (6s)</option>
-              <option value="LowGong">STRIKE: low gong (12s)</option>
-              <option value="MediumBright">STRIKE: bright medium tibetan bell (30s)</option>
-              <option value="BoldBright">STRIKE: tibetan singing bowl (43s)</option>
-              <option value="SingingGentle">SINGING: tibetan singing bowl (57s)</option>
-              <option value="SingingEscalating">SINGING: tibetan singing bowl, escalating (60s)</option>
-            </select>
+      <div class="panel-timed-aria" aria-live="polite">
+        <div class="creator-panel timed" id="panel-timed">
+          <div class="creator-panel-header" onclick="togglePanel('panel-timed')">
+            <h2>create new timed bell (good for alarms)</h2>
+            <button
+              class="close-panel-btn"
+              onclick="event.stopPropagation(); togglePanel('panel-timed')"
+              title="close create new timed bell timer panel"
+              aria-label="close create new timed bell timer panel"
+              aria-controls="panel-timed-aria"
+            >❌</button>
           </div>
-          <div class="timer-field">
-            <label for="alarm-time">ring at</label>
-            <input type="time" id="alarm-time">
+          <div class="timer-field preview" aria-role="live-polite">
+            <label for="alarm-preview-player">preview</label>
+            <audio
+              id="alarm-preview-player"
+              controls
+              src="../assets/6s-bright-high-bell-strike-cc0-from-freesound.org-edgepixel-sounds-451229.mp3"
+            ></audio>
           </div>
-          <div class="timer-field">
-            <label for="alarm-volume">volume</label>
-            <select id="alarm-volume" onchange="setPreviewVolume('alarm-preview-player', this.value)">
-              <option value="0.1">10%</option>
-              <option value="0.2">20%</option>
-              <option value="0.3">30%</option>
-              <option value="0.4" selected>40%</option>
-              <option value="0.5">50%</option>
-              <option value="0.6">60%</option>
-              <option value="0.7">70%</option>
-              <option value="0.8">80%</option>
-              <option value="0.9">90%</option>
-              <option value="1.0">100%</option>
-            </select>
+          <div class="timer-form">
+            <div class="timer-field">
+              <label for="alarm-bell">bell</label>
+              <select
+                id="alarm-bell"
+                aria-controls="alarm-preview-player"
+                onchange="switchBell('alarm-preview-player', this.value)"
+              >
+                <option value="SoftWooden">SOFT: wooden wind chimes (5s)</option>
+                <option value="HighBright">STRIKE: bright high bell (6s)</option>
+                <option value="LowGong">STRIKE: low gong (12s)</option>
+                <option value="MediumBright">STRIKE: bright medium tibetan bell (30s)</option>
+                <option value="BrightMetal">BRIGHT: metal wind chimes (31s)</option>
+                <option value="BoldBright">STRIKE: tibetan singing bowl (43s)</option>
+                <option value="SingingGentle">SINGING: tibetan singing bowl (57s)</option>
+                <option value="SingingEscalating">SINGING: tibetan singing bowl, escalating (60s)</option>
+                <option value="ChurchEscalating">CHURCH: czech church bells, escalating (85s)</option>
+              </select>
+            </div>
+            <div class="timer-field">
+              <label for="alarm-time">ring at</label>
+              <input type="time" id="alarm-time">
+            </div>
+            <div class="timer-field">
+              <label for="alarm-volume">volume</label>
+              <select id="alarm-volume" onchange="setPreviewVolume('alarm-preview-player', this.value)">
+                <option value="0.1">10%</option>
+                <option value="0.2">20%</option>
+                <option value="0.3">30%</option>
+                <option value="0.4" selected>40%</option>
+                <option value="0.5">50%</option>
+                <option value="0.6">60%</option>
+                <option value="0.7">70%</option>
+                <option value="0.8">80%</option>
+                <option value="0.9">90%</option>
+                <option value="1.0">100%</option>
+              </select>
+            </div>
+            <button
+              class="create-btn lorge"
+              onclick="createAlarm()"
+              aria-controls="active-timers"
+            >create</button>
           </div>
-          <button class="create-btn lorge" onclick="createAlarm()">create</button>
         </div>
       </div>
     </section>
     <aside>
-      <nav>
+      <nav id="menu" aria-live="polite">
         <a href="./">bells (you are here)</a>
         <a href="https://github.com/uncooltoast">githorb</a>
         <a href="../">uncool toast</a>
+        <button
+          id="menu-trigger"
+          onclick="togglePanel('menu')"
+          aria-controls="menu"
+        >show/hide site navigation</button>
       </nav>
     </aside>
-    <!--
-      CC0 1.0 Universal https://archive.org/details/LovelyMeditationBell
-      - needs some trimming
-
-      CC0 1.0 Universal https://archive.org/details/CzechChurchBells
-      - lovely escalating 1:25min file with church bells -- could be good for important alarm
-    -->
   </main>
 </body>
 </html>
