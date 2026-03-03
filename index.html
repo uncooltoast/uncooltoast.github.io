@@ -138,32 +138,78 @@
       width: 100%;
       z-index: 100;
       display: flex;
+      align-items: center;
       justify-content: center;
+      text-align: center;
       gap: 2.5rem;
       padding: 0.4rem 1rem;
-      background: rgba(120, 50, 0, 0.18);
+      background: rgba(120, 50, 0, 0.28);
       backdrop-filter: blur(4px);
       font-family: sans-serif;
       font-weight: bold;
+      text-wrap: balance;
+      text-wrap: pretty;
     }
 
-    nav a {
+    nav a, #menu-trigger {
       color: rgb(255, 240, 200);
       text-decoration: none;
     }
 
-    nav a:hover {
-      color: rgb(139, 69, 19);
+    nav a:hover, #menu-trigger:hover {
+      color: rgb(28, 100, 207);
+      text-shadow: rgb(255, 250, 190) 1px 0 1rem;
       text-decoration: underline;
     }
+
+    #menu-trigger {
+      background: transparent;
+      border: none;
+      font-weight: bold;
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      #menu-trigger {
+        display: inline-block;
+      }
+
+      nav {
+        flex-flow: column nowrap;
+        text-align: center;
+        gap: 0.5rem;
+
+        > a {
+          display: none;
+        }
+
+        &.open > a {
+          display: inline-block;
+        }
+      }
+    }
   </style>
+  <script>
+    /** toggles the open state of a panel (opens/closes it) */
+    function togglePanel(id) {
+      document.getElementById(id).classList.toggle('open');
+    }
+  </script>
 </head>
 
 <body>
-  <nav>
+  <nav id="menu">
     <a href="./bells/">bells</a>
-    <a href="https://github.com/uncooltoast">githorb</a>
-    <a href="./">YOU ARE HERE</a>
+    <a href="https://github.com/uncooltoast">🍞 githorb</a>
+    <a href="./">uncool toast (YOU ARE HERE)</a>
+    <a href="https://sojeri.github.io/howsTheWeatherSeattle/">clouds</a>
+    <a href="https://sojeri.github.io//solarSystem">space</a>
+    <a href="https://github.com/sojeri">🐍 sojeri</a>
+    <button
+      id="menu-trigger"
+      onclick="togglePanel('menu')"
+      aria-controls="menu"
+    >show/hide site navigation</button>
   </nav>
   <aside class="uncool-toast-container">
     <div class="toast-container">

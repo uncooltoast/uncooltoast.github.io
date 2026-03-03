@@ -238,12 +238,16 @@
       width: 100%;
       z-index: 100;
       display: flex;
+      align-items: center;
       justify-content: center;
+      text-align: center;
       gap: 2.5rem;
       padding: 0.4rem 1rem;
       background: rgba(120, 50, 0, 0.18);
       backdrop-filter: blur(4px);
       font-weight: bold;
+      text-wrap: balance;
+      text-wrap: pretty;
     }
 
     #menu-trigger {
@@ -1005,8 +1009,11 @@
     <aside>
       <nav id="menu" aria-live="polite">
         <a href="./">bells (you are here)</a>
-        <a href="https://github.com/uncooltoast">githorb</a>
+        <a href="https://github.com/uncooltoast">🍞 githorb</a>
         <a href="../">uncool toast</a>
+        <a href="https://sojeri.github.io/howsTheWeatherSeattle/">clouds</a>
+        <a href="https://sojeri.github.io//solarSystem">space</a>
+        <a href="https://github.com/sojeri">🐍 sojeri</a>
         <button
           id="menu-trigger"
           onclick="togglePanel('menu')"
