@@ -73,7 +73,6 @@
       gap: 0.8rem;
     }
 
-
     .timer-creator {
       display: flex;
       flex-flow: column nowrap;
@@ -357,9 +356,21 @@
   </style>
   <script>
     // #region bell shenanigans
-    /** simple class to represent a bell */
+    /** simple class to represent a bell. args:
+     * ```
+      {
+        src, label, defaultVolume,
+        author, authorName, authorDescription,
+        originalSource, license, licenseUrl,
+      }
+      ```
+    */
     class Bell {
-      constructor({ src, label, defaultVolume, author, authorName, authorDescription, originalSource, license, licenseUrl }) {
+      constructor({
+        src, label, defaultVolume,
+        author, authorName, authorDescription,
+        originalSource, license, licenseUrl,
+      }) {
         this.src = src;
         this.label = label;
         this.defaultVolume = defaultVolume;
@@ -553,21 +564,17 @@
     };
     // #endregion bell shenanigans
 
+    const activeBells = [];
+
+    // #region shared DOM utils
     /** grab an element from the DOM */
     function accessDom(id) {
       return document.getElementById(id);
     }
 
-    /** switches the bell for a given player */
-    function switchBell(playerId, whichBell) {
-      const bell = BELLS[whichBell];
-      const player = accessDom(playerId);
-      player.pause();
-      player.src = bell.src;
-      player.load();
-      player.volume = bell.defaultVolume;
-      const prefix = playerId.replace('-preview-player', '');
-      setFormValue(prefix + '-volume', bell.defaultVolume.toFixed(1));
+    /** toggles the open state of a panel (opens/closes it) */
+    function togglePanel(id) {
+      accessDom(id).classList.toggle('open');
     }
 
     /** sets the volume of a given player */
@@ -579,38 +586,58 @@
     function setFormValue(id, value) {
       accessDom(id).value = value;
     }
+    // #endregion shared DOM utils
 
-    /** clears all form state, mostly necessary to avoid weird state issues on page reload */
-    function resetPageState() {
-      document.querySelectorAll('form').forEach(f => f.reset());
-      document.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; });
-
-      switchBell('timer-preview-player', 'HighBright');
-      setFormValue('timer-bell', 'HighBright');
-      setFormValue('timer-period', '30');
-      setFormValue('timer-volume', '0.4');
-      setFormValue('timer-start-at', '');
-      setPreviewVolume('timer-preview-player', 0.4);
-
-      switchBell('alarm-preview-player', 'HighBright');
-      setFormValue('alarm-bell', 'HighBright');
-      setFormValue('alarm-volume', '0.4');
-      setFormValue('alarm-time', '');
-      setPreviewVolume('alarm-preview-player', 0.4);
+    // #region shared time utils
+    /** calculates the number of milliseconds until the next minute */
+    function msUntilMinute(targetMinute) {
+      const now = new Date();
+      const almostNow = new Date(now);
+      almostNow.setSeconds(0, 0);
+      almostNow.setMinutes(targetMinute);
+      if (almostNow <= now) {
+        almostNow.setHours(almostNow.getHours() + 1);
+      }
+      return almostNow - now;
     }
 
-    document.addEventListener('DOMContentLoaded', resetPageState);
+    /** simple util fn to grab the closest of two time options */
+    // TODO: support array input
+    //       for when a strict startAt checkbox isn't checked
+    //       so others can save recurring stuff to start next soonest
+    function getClosestTime(one, two) {
+      const first = msUntilMinute(one);
+      const second = msUntilMinute(two);
 
-    const activeTimers = [];
+      return Math.min(first, second);
+    }
 
     /** formats milliseconds into a friendlier time string */
     function formatCountdown(ms) {
       const seconds = Math.max(0, Math.ceil(ms / 1000));
       const hour = Math.floor(seconds / 3600);
+      if (hour > 1) return `>${hour}hrs`;
+      if (hour === 1) return `>${hour}hr`;
+
       const minute = Math.floor((seconds % 3600) / 60);
+      if (minute > 5) return `~${minute}min`;
+
       const second = seconds % 60;
-      if (hour > 0) return hour + ':' + String(minute).padStart(2, '0') + ':' + String(second).padStart(2, '0');
       return minute + ':' + String(second).padStart(2, '0');
+    }
+    // #endregion shared time utils
+
+    // #region actual create timer / ringer UX
+    /** switches the bell for a given preview player */
+    function switchPreviewBell(playerId, whichBell) {
+      const bell = BELLS[whichBell];
+      const player = accessDom(playerId);
+      player.pause();
+      player.src = bell.src;
+      player.load();
+      player.volume = bell.defaultVolume;
+      const prefix = playerId.replace('-preview-player', '');
+      setFormValue(prefix + '-volume', bell.defaultVolume.toFixed(1));
     }
 
     /** updates the countdown display for all active timers */
@@ -622,7 +649,80 @@
       }
     }
 
-    setInterval(updateCountdowns, 1000);
+    // TODO: update logic to reduce to once a minute if none are <5min
+    setInterval(updateCountdowns, 1_000);
+
+    /** clears all form state, mostly necessary to avoid weird state issues on page reload */
+    function resetPageState() {
+      document.querySelectorAll('form').forEach(f => f.reset());
+      document.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; });
+
+      switchPreviewBell('timer-preview-player', 'HighBright');
+      setFormValue('timer-bell', 'HighBright');
+      setFormValue('timer-period', '30');
+      setFormValue('timer-volume', '0.4');
+      setFormValue('timer-start-at', '');
+      setPreviewVolume('timer-preview-player', 0.4);
+
+      switchPreviewBell('alarm-preview-player', 'HighBright');
+      setFormValue('alarm-bell', 'HighBright');
+      setFormValue('alarm-volume', '0.4');
+      setFormValue('alarm-time', '');
+      setPreviewVolume('alarm-preview-player', 0.4);
+    }
+
+    document.addEventListener('DOMContentLoaded', resetPageState);
+
+    /** uses form state to inject a new periodic bell timer */
+    function createTimer() {
+      const bell = BELLS[accessDom('timer-bell').value];
+      const minutes = parseInt(accessDom('timer-period').value);
+      const volume = parseFloat(accessDom('timer-volume').value);
+      const startValue = accessDom('timer-start-at').value;
+
+      let delayMs = 0;
+      if (startValue) {
+        const [hour, minute] = startValue.split(':').map(Number);
+        const target = new Date();
+        target.setHours(hour, minute, 0, 0);
+        if (target <= new Date()) target.setDate(target.getDate() + 1);
+        delayMs = target - Date.now();
+      }
+
+      spawnPeriodic(bell, minutes, delayMs, volume);
+    }
+
+    /** uses form state to inject a new timed bell alarm */
+    function createAlarm() {
+      const timeValue = accessDom('alarm-time').value;
+      if (!timeValue) return;
+
+      spawnAlarm(
+        BELLS[accessDom('alarm-bell').value],
+        timeValue,
+        parseFloat(accessDom('alarm-volume').value)
+      );
+    }
+
+    /** cancels and removes a timer from the DOM */
+    function stopTimer(id) {
+      const timerIndex = activeTimers.findIndex(t => t.id === id);
+      if (timerIndex !== -1) {
+        clearTimeout(activeTimers[timerIndex].intervalId);
+        activeTimers.splice(timerIndex, 1);
+      }
+      accessDom('timer-' + id)?.remove();
+    }
+
+    /** cancels and removes all timers from the DOM */
+    function stopAll() {
+      for (const timer of [...activeTimers]) stopTimer(timer.id);
+      BELLS.forEach(bell => bell.shhhhh());
+    }
+    // #endregion actual create timer / ringer UX
+
+    // #region create timer / ringer handlers
+    const activeTimers = [];
 
     let spawnCounter = 0;
 
@@ -683,27 +783,23 @@
       spawnTimer(id, bell.label, `at ${ displayTime }`, Math.round(volume * 100));
     }
 
-    /** calculates the number of milliseconds until the next minute */
-    function msUntilMinute(targetMinute) {
-      const now = new Date();
-      const almostNow = new Date(now);
-      almostNow.setSeconds(0, 0);
-      almostNow.setMinutes(targetMinute);
-      if (almostNow <= now) {
-        almostNow.setHours(almostNow.getHours() + 1);
-      }
-      return almostNow - now;
-    }
-
-    /** simple util fn to grab the closer of two time options */
-    function getClosestTime(one, two) {
-      const first = msUntilMinute(one);
-      const second = msUntilMinute(two);
-
-      return Math.min(first, second);
+    /** adds a new bell timer to the DOM */
+    function spawnTimer(id, label, periodLabel, volumePct) {
+      const list = accessDom('active-timers');
+      const item = document.createElement('div');
+      item.className = 'timer-item';
+      item.id = 'timer-' + id;
+      item.innerHTML =
+        `<span>${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
+        `<span id="countdown-${ id }"></span>` +
+        `<button class="stop-btn" onclick="stopTimer(${ id })">DESTROY</button>`;
+      list.appendChild(item);
+      updateCountdowns();
     }
 
     /** sets up uncooltoast's preferred bells */
+    // TODO: support user saving their own set in localstorage
+    //       so they don't have to repeatedly recreate a set of bells
     function setupPreferred() {
       // TODO: support localstorage and fall back to this if no local options found
       spawnPeriodic(HighBright, 30, getClosestTime(15, 45));
@@ -712,59 +808,9 @@
       spawnAlarm(LowGong, '14:00');
       spawnAlarm(SingingEscalating, '15:00');
     }
+    // #endregion create timer / ringer handlers
 
-    /** uses form state to inject a new periodic bell timer */
-    function createTimer() {
-      const bell = BELLS[accessDom('timer-bell').value];
-      const minutes = parseInt(accessDom('timer-period').value);
-      const volume = parseFloat(accessDom('timer-volume').value);
-      const startValue = accessDom('timer-start-at').value;
-
-      let delayMs = 0;
-      if (startValue) {
-        const [hour, minute] = startValue.split(':').map(Number);
-        const target = new Date();
-        target.setHours(hour, minute, 0, 0);
-        if (target <= new Date()) target.setDate(target.getDate() + 1);
-        delayMs = target - Date.now();
-      }
-
-      spawnPeriodic(bell, minutes, delayMs, volume);
-    }
-
-    /** uses form state to inject a new timed bell alarm */
-    function createAlarm() {
-      const timeValue = accessDom('alarm-time').value;
-      if (!timeValue) return;
-
-      spawnAlarm(
-        BELLS[accessDom('alarm-bell').value],
-        timeValue,
-        parseFloat(accessDom('alarm-volume').value)
-      );
-    }
-
-    /** cancels and removes a timer from the DOM */
-    function stopTimer(id) {
-      const timerIndex = activeTimers.findIndex(t => t.id === id);
-      if (timerIndex !== -1) {
-        clearTimeout(activeTimers[timerIndex].intervalId);
-        activeTimers.splice(timerIndex, 1);
-      }
-      accessDom('timer-' + id)?.remove();
-    }
-
-    /** cancels and removes all timers from the DOM */
-    function stopAll() {
-      for (const timer of [...activeTimers]) stopTimer(timer.id);
-      BELLS.forEach(bell => bell.shhhhh());
-    }
-
-    /** toggles the open state of a panel (opens/closes it) */
-    function togglePanel(id) {
-      accessDom(id).classList.toggle('open');
-    }
-
+    // #region bell info pane (learn about the bells)
     let bellInfoIndex = 0;
 
     /** shows/hides the bell info pane */
@@ -799,20 +845,7 @@
       bellInfoIndex = (bellInfoIndex + dir + bellKeys.length) % bellKeys.length;
       renderBellInfo();
     }
-
-    /** adds a new bell timer to the accessDom */
-    function spawnTimer(id, label, periodLabel, volumePct) {
-      const list = accessDom('active-timers');
-      const item = document.createElement('div');
-      item.className = 'timer-item';
-      item.id = 'timer-' + id;
-      item.innerHTML =
-        `<span>${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
-        `<span id="countdown-${ id }"></span>` +
-        `<button class="stop-btn" onclick="stopTimer(${ id })">DESTROY</button>`;
-      list.appendChild(item);
-      updateCountdowns();
-    }
+    // #endregion bell info pane (learn about the bells)
   </script>
 </head>
 
@@ -887,7 +920,7 @@
               <label for="timer-bell">bell</label>
               <select
                 id="timer-bell"
-                onchange="switchBell('timer-preview-player', this.value)"
+                onchange="switchPreviewBell('timer-preview-player', this.value)"
                 aria-controls="timer-preview-player"
               >
                 <option value="SoftWooden">SOFT: wooden wind chimes (5s)</option>
@@ -970,7 +1003,7 @@
               <select
                 id="alarm-bell"
                 aria-controls="alarm-preview-player"
-                onchange="switchBell('alarm-preview-player', this.value)"
+                onchange="switchPreviewBell('alarm-preview-player', this.value)"
               >
                 <option value="SoftWooden">SOFT: wooden wind chimes (5s)</option>
                 <option value="HighBright">STRIKE: bright high bell (6s)</option>
@@ -1011,6 +1044,9 @@
         </div>
       </div>
     </section>
+    <aside>
+      <audio id="bell-ringer-player" nocontrols src="" />
+    </aside>
     <aside>
       <nav id="menu" aria-live="polite">
         <a href="./">bells (you are here)</a>
