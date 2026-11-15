@@ -21,6 +21,7 @@
     :root {
       --base-color: hsl(24, 100%, 50%);
       --dark: hsl(from var(--base-color) h s calc(l - 35));
+      --dark: contrast-color(var(--base-color));
       --accent: hsl(from var(--base-color) calc(h + 10) s calc(l + 14));
       --accent-alt: hsl(from var(--base-color) calc(h + 20) calc(s - 8) calc(l + 5));
       --foreground: hsl(from var(--base-color) h calc(s - 25) calc(l - 20));
