@@ -18,26 +18,72 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --base-color: hsl(24, 100%, 50%);
+      --dark: hsl(from var(--base-color) h s calc(l - 35));
+      --accent: hsl(from var(--base-color) calc(h + 10) s calc(l + 14));
+      --accent-alt: hsl(from var(--base-color) calc(h + 20) calc(s - 8) calc(l + 5));
+      --foreground: hsl(from var(--base-color) h calc(s - 25) calc(l - 20));
+      --foreground-medium: hsl(from var(--foreground) h s l / 0.65);
+      --foreground-light: hsl(from var(--foreground) h s l / 0.35);
+      --foreground-lightgrey: hsl(from var(--base-color) h calc(s - 15) calc(l - 20) / 0.4);
+      --contrast: hsl(from var(--base-color) calc(h + 20) s calc(l + 40));
+      --contrast-alt: hsl(from var(--contrast) calc(h - 3) calc(s - 10) calc(l - 15));
+      --contrast-medium: hsl(from var(--contrast) h s l / 0.65);
+      --contrast-light: hsl(from var(--contrast) h s l / 0.45);
+      --shadow:
+        1rem -1rem 2rem var(--contrast-alt),
+        -1rem 1rem 2rem var(--contrast-alt),
+        1rem 1rem 2rem var(--contrast),
+        -1rem -1rem 2rem var(--contrast);
+    }
+    /*
+      ORIG COLORS
+      props to https://colordesigner.io/convert/hextohsl
+      for helping me convert my original hex
+
+      base: #ff6801
+      hsl(24.33, 100%, 50.2%)
+      rgb(255, 104, 1)
+
+      accent: #ffb347
+      hsl(35.22, 100%, 63.92%)
+      rgb(255, 179, 71)
+
+      accent-alt: #f6c324
+      hsl(45.43, 92.11%, 55.29%)
+      rgb(246, 195, 36)
+
+      foreground: #8b4513
+      rgb(139, 69, 19)
+      hsl(25, 75.95%, 30.98%)
+
+      contrast: #fff0c8
+      rgb(255, 240, 200)
+      hsl(43.64, 100%, 89.22%)
+
+      contrast-alt: #f8d58a
+      rgb(248, 213, 138)
+      hsl(40.91, 88.71%, 75.69%)
+    */
+
     html,
     body {
       width: 100%;
       height: 100%;
       overflow: auto;
     }
-
+    
     body {
-      background-color: #ffb347;
-      background-image: linear-gradient(319deg, #ffb347 0%, #ff6801 37%, #F6C324 100%);
-      color: rgb(139, 69, 19);
       font-family: sans-serif;
+      background-color: var(--base-color);
+      background-color: var(--accent);
+      background-image: linear-gradient(319deg, var(--accent) 0%, var(--base-color) 37%, var(--accent-alt) 100%);
+      color: var(--foreground);
     }
 
     h1, p {
-      text-shadow:
-        1rem -1rem 2rem rgb(248, 213, 138),
-        -1rem 1rem 2rem rgb(248, 213, 138),
-        1rem 1rem 2rem rgb(255, 250, 190),
-        -1rem -1rem 2rem rgb(255, 250, 190);
+      text-shadow: var(--shadow);
     }
 
     h1 {
@@ -80,12 +126,9 @@
       gap: 0.8rem;
       padding: 1rem;
       border-radius: 1rem;
-      box-shadow:
-        1rem -1rem 2rem rgb(248, 213, 138),
-        -1rem 1rem 2rem rgb(248, 213, 138),
-        1rem 1rem 2rem rgb(255, 250, 190),
-        -1rem -1rem 2rem rgb(255, 250, 190);
-      background-color: rgba(255, 250, 190, 0.45);
+      box-shadow: var(--shadow);
+      background-color: var(--contrast-light);
+      color: var(--dark);
       margin-bottom: 4rem;
     }
 
@@ -99,8 +142,8 @@
     }
 
     .timer-form select {
-      background: rgba(255, 240, 200, 0.7);
-      border: 1px solid rgba(139, 69, 19, 0.35);
+      background: var(--contrast-medium);
+      border: 1px solid var(--foreground-light);
       border-radius: 4px;
       padding: 0.3rem 0.5rem;
       cursor: pointer;
@@ -118,8 +161,8 @@
     }
 
     .create-btn {
-      color: rgb(255, 240, 200);
-      background: rgba(139, 69, 19, 0.65);
+      color: var(--contrast);
+      background: var(--foreground-medium);
       border: none;
       border-radius: 4px;
       padding: 0.35rem 0.9rem;
@@ -127,13 +170,14 @@
     }
 
     .create-btn:hover {
-      background: rgba(139, 69, 19, 1);
+      background: var(--foreground);
     }
 
     .lorge {
       font-size: 1.5rem;
-      color: #fd9956;
-      background: black;
+      letter-spacing: 0.1rem;
+      color: var(--contrast);
+      background: var(--foreground-medium);
     }
 
     .add-btns {
@@ -150,7 +194,7 @@
       flex-flow: column nowrap;
       gap: 1rem;
       align-items: center;
-      border: 2px dotted rgb(139, 69, 19);
+      border: 2px dotted var(--foreground);
     }
 
     .creator-panel.open {
@@ -166,12 +210,12 @@
       cursor: pointer;
       user-select: none;
       padding: 0.5rem;
-      background-color: rgba(255, 240, 200, 0.5);
+      background-color: var(--contrast-medium);
     }
 
     .close-panel-btn {
       font-size: 1.5rem;
-      color: rgb(139, 69, 19);
+      color: var(--foreground);
       background: transparent;
       border: none;
       cursor: pointer;
@@ -189,14 +233,15 @@
       display: flex;
       align-items: center;
       gap: 0.8rem;
-      background: rgba(255, 240, 200, 0.45);
-      border: 1px solid rgba(139, 69, 19, 0.2);
+      background: var(--contrast-light);
+      border: 1px solid var(--foreground-light);
       border-radius: 6px;
       padding: 0.4rem 0.8rem;
     }
 
     .stop-btn {
       background: transparent;
+      color: var(--dark);
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -208,8 +253,28 @@
       flex-grow: 1;
     }
 
+    #color-selector {
+      display: flex;
+      flex-flow: row nowrap;
+      gap: 0.5rem;
+      width: 300px;
+      align-self: center;
+    }
+    
+    .theme-label {
+      cursor: pointer;
+      flex-grow: 1;
+      align-self: center;
+      text-align: left;
+    }
+
+    input[type="color"] {
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
     .stop-btn:hover {
-      background: rgba(139, 69, 19, 0.12);
+      background: var(--foreground-light);
     }
 
     .icon {
@@ -227,9 +292,9 @@
     }
 
     input[type="time"] {
-      color: rgb(139, 69, 19);
-      background: rgba(255, 240, 200, 0.7);
-      border: 1px solid rgba(139, 69, 19, 0.35);
+      color: var(--foreground);
+      background: var(--contrast-medium);
+      border: 1px solid var(--foreground-light);
       border-radius: 4px;
       padding: 0.3rem 0.5rem;
       cursor: pointer;
@@ -247,7 +312,7 @@
       text-align: center;
       gap: 2.5rem;
       padding: 0.4rem 1rem;
-      background: rgba(120, 50, 0, 0.18);
+      background: var(--foreground-lightgrey);
       backdrop-filter: blur(4px);
       font-weight: bold;
       text-wrap: balance;
@@ -260,16 +325,22 @@
       border: none;
       font-weight: bold;
       font-size: 1rem;
+      cursor: pointer;
     }
 
     nav a, #menu-trigger {
-      color: rgb(255, 240, 200);
+      color: var(--contrast);
       text-decoration: none;
     }
 
     nav a:hover, #menu-trigger:hover {
-      color: rgb(139, 69, 19);
+      color: var(--foreground);
       text-decoration: underline;
+      text-shadow:
+        1rem -1rem 1.5rem var(--contrast-alt),
+        -1rem 1rem 1.5rem var(--contrast-alt),
+        1rem 1rem 1.5rem var(--contrast),
+        -1rem -1rem 1.5rem var(--contrast);
     }
 
     .bell-info-carousel {
@@ -287,7 +358,7 @@
       align-items: center;
       justify-content: space-around;
       gap: 0.8rem;
-      background-color: rgba(255, 250, 190, 0.8);
+      background-color: var(--contrast-medium);
       padding: 0.4rem;
     }
 
@@ -296,14 +367,19 @@
       flex-direction: column;
       gap: 0.8rem;
       padding: 1rem;
-      background: rgba(255, 240, 200, 0.5);
+      background: var(--contrast-light);
       text-align: center;
       text-wrap: balance;
       text-wrap: pretty;
     }
 
     .bell-info-card a {
-      color: rgb(139, 69, 19);
+      color: var(--foreground);
+    }
+
+    .bell-info-card a:hover {
+      background: var(--foreground-light);
+      color: var(--contrast);
     }
 
     .bell-info-card p {
@@ -344,12 +420,10 @@
           display: none;
         }
 
-        &.open > a {
+        &.open > a, #menu-trigger {
           display: inline-block;
-        }
-
-        #menu-trigger {
-          display: inline-block;
+          width: 100%;
+          padding: 0.5rem 0;
         }
       }
     }
@@ -669,6 +743,12 @@
       setFormValue('alarm-volume', '0.4');
       setFormValue('alarm-time', '');
       setPreviewVolume('alarm-preview-player', 0.4);
+
+      setFormValue('base-color', '#ff6801');
+    }
+
+    function updateTheme(newBaseColor) {
+      document.documentElement.style.setProperty('--base-color', newBaseColor)
     }
 
     document.addEventListener('DOMContentLoaded', resetPageState);
@@ -894,6 +974,10 @@
           title="set up uncooltoast's current favorite bells"
           aria-controls="active-timers"
         >uncooltoast it</button>
+      </div>
+      <div id="color-selector">
+        <label class="theme-label" for="base-color">want a different theme color?</label>
+        <input type="color" id="base-color" name="base-color" value="#ff6801" onchange="updateTheme(this.value)" />
       </div>
       <div id="panel-periodic-aria" aria-live="polite">
         <div class="creator-panel periodic" id="panel-periodic">
